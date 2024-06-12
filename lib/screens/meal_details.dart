@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/meal.dart';
@@ -18,31 +19,54 @@ class MealDetailsScreen extends ConsumerWidget {
     final isFavorite = favoriteMeals.contains(meal);
 
     return Scaffold(
-        appBar: AppBar(title: Text(meal.title), actions: [
-          IconButton(
-            onPressed: () {
-              final wasAdded = ref
-                  .read(favoriteMealsProvider.notifier)
-                  .toggleMealFavoriteStatus(meal);
-              ScaffoldMessenger.of(context).clearSnackBars();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                      wasAdded ? 'Meal added as a favorite.' : 'Meal removed.'),
+        appBar: AppBar(
+            title: Text(meal.title),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  final wasAdded = ref
+                      .read(favoriteMealsProvider.notifier)
+                      .toggleMealFavoriteStatus(meal);
+                  ScaffoldMessenger.of(context).clearSnackBars();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                          wasAdded ? 'Meal added as a favorite.' : 'Meal removed.'),
+                    ),
+                  );
+                  },
+                icon: AnimatedSwitcher(
+                  transitionBuilder: (child , animation){
+                    return RotationTransition(
+                      turns: Tween(
+                        begin: 0.5,
+                        end : 1.0,
+                      ).animate (
+                        animation,
+                      ),
+                      child: child,
+                    );
+                    },
+                  duration: const Duration(milliseconds: 1000),
+                  child: Icon(
+                    isFavorite ? Icons.star : Icons.star_border,
+                    key: ValueKey(isFavorite),
+                  ),
                 ),
-              );
-            },
-            icon: Icon(isFavorite ? Icons.star : Icons.star_border),
-          )
-        ]),
+              )
+            ]
+        ),
         body: SingleChildScrollView(
           child: Column(
             children: [
-              Image.network(
-                meal.imageUrl,
-                height: 300,
-                width: double.infinity,
-                fit: BoxFit.cover,
+              Hero(
+                tag: meal.id,
+                child: Image.network(
+                  meal.imageUrl,
+                  height: 300,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
               ),
               const SizedBox(height: 14),
               Text(
@@ -85,6 +109,7 @@ class MealDetailsScreen extends ConsumerWidget {
                 ),
             ],
           ),
-        ));
+        )
+    );
   }
 }
